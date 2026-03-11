@@ -1,0 +1,73 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - ./processing:/app/processing
+      - uploads_data:/app/uploads
+      - outputs_data:/app/outputs
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+    environment:
+      - DATABASE_URL=postgresql://ktranslate:ktranslate@db:5432/ktranslate
+      - REDIS_URL=redis://redis:6379
+
+  worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: python -m celery -A app.celery_app worker --loglevel=info --concurrency=2
+    volumes:
+      - ./backend:/app
+      - ./processing:/app/processing
+      - uploads_data:/app/uploads
+      - outputs_data:/app/outputs
+    env_file:
+      - .env
+    depends_on:
+      - redis
+      - db
+    environment:
+      - DATABASE_URL=postgresql://ktranslate:ktranslate@db:5432/ktranslate
+      - REDIS_URL=redis://redis:6379
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+    environment:
+      - VITE_API_URL=http://localhost:8000
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: ktranslate
+      POSTGRES_PASSWORD: ktranslate
+      POSTGRES_DB: ktranslate
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  uploads_data:
+  outputs_data:
+  postgres_data:

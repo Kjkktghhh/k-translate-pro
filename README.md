@@ -6,6 +6,21 @@ Automates extraction of Korean text from product images, translates to Tradition
 
 ---
 
+## Tech Stack
+
+| Layer | Technology |
+|-------|-----------|
+| **Backend** | [FastAPI](https://fastapi.tiangolo.com/) (Python) — REST API served by Uvicorn |
+| **ORM / Database** | SQLAlchemy 2.0 + PostgreSQL 15 |
+| **Task Queue** | Celery 5.4 + Redis 7 |
+| **Frontend** | React 18 + Vite + Tailwind CSS |
+| **OCR** | PaddleOCR v2.7 (primary), EasyOCR (fallback) |
+| **Translation** | Google Translate API / DeepL API (mock mode available) |
+| **Image Processing** | OpenCV (inpainting) + Pillow (text rendering) |
+| **Deployment** | Docker Compose |
+
+---
+
 ## Quick Start (Local Dev)
 
 ### Prerequisites
